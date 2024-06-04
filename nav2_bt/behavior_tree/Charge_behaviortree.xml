@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <SequenceStar>
+            <Sequence>
+                <SetBlackboard output_key="hard_stop" value="false"/>
+                <SetBlackboard output_key="soft_stop" value="false"/>
+                <SetBlackboard output_key="move_base_failed" value="false"/>
+                <SetBlackboard output_key="cam_detection_failed" value="false"/>
+                <SetBlackboard output_key="dockin" value="false"/>
+                <SetBlackboard output_key="lidar_detection_failed" value="false"/>
+                <SetBlackboard output_key="dockout" value="false"/>
+                <SetBlackboard output_key="localization_failed" value="false"/>
+                <SetBlackboard output_key="flashlight_failed" value="false"/>
+                <SetBlackboard output_key="timeout_failed" value="false"/>
+                <SetBlackboard output_key="unknown_failed" value="false"/>
+            </Sequence>
+            <Action ID="RequestDockingState" current_pose="{current_pose}" dock_pose="{dock_pose}" dock_type="{dock_type}" dockin="{dockin}" dockout="{dockout}" server_timeout="10000" service_name="docking_state"/>
+            <Fallback>
+                <Sequence>
+                    <IfThenElse>
+                        <Condition ID="IsBlackboardTrue" key_blackboard="hard_stop" name="HardStop"/>
+                        <AlwaysFailure/>
+                        <Fallback>
+                            <Inverter>
+                                <Condition ID="IsBlackboardTrue" key_blackboard="dockin" name="IsDockIn"/>
+                            </Inverter>
+                            <Fallback name="">
+                                <Inverter>
+                                    <Action ID="DOCK_PLUGIN" cam_detection_failed="{cam_detection_failed}" charging_failed="{charging_failed}" current_pose="{current_pose}" dock_pose="{dock_pose}" flashlight_failed="{flashlight_failed}" hard_stop="{hard_stop}" lidar_detection_failed="{lidar_detection_failed}" localization_failed="{localization_failed}" move_base_failed="{move_base_failed}" name="Docking request" server_name="/dock_plugin_action" server_timeout="10000" soft_stop="{soft_stop}" timeout_failed="{timeout_failed}" unknow_failed="{unknow_failed}"/>
+                                </Inverter>
+                                <IfThenElse>
+                                    <Condition ID="IsBlackboardTrue" key_blackboard="hard_stop" name="IsHardStop"/>
+                                    <AlwaysFailure/>
+                                    <Fallback>
+                                        <Action ID="DOCK_PLUGIN" cam_detection_failed="{cam_detection_failed}" charging_failed="{charging_failed}" current_pose="{current_pose}" dock_pose="{dock_pose}" flashlight_failed="{flashlight_failed}" hard_stop="{hard_stop}" lidar_detection_failed="{lidar_detection_failed}" localization_failed="{localization_failed}" move_base_failed="{move_base_failed}" name="Charging request" server_name="/charging_plugin_action" server_timeout="10000" soft_stop="{soft_stop}" timeout_failed="{timeout_failed}" unknow_failed="{unknow_failed}"/>
+                                        <IfThenElse>
+                                            <Inverter>
+                                                <Condition ID="IsBlackboardTrue" key_blackboard="soft_stop" name="IsSoftStop"/>
+                                            </Inverter>
+                                            <Sequence>
+                                                <Control ID="RecoveryNode" number_of_retries="3">
+                                                    <Action ID="DOCK_PLUGIN" cam_detection_failed="{cam_detection_failed}" charging_failed="{charging_failed}" current_pose="{current_pose}" dock_pose="{dock_pose}" flashlight_failed="{flashlight_failed}" hard_stop="{hard_stop}" lidar_detection_failed="{lidar_detection_failed}" localization_failed="{localization_failed}" move_base_failed="{move_base_failed}" name="Charging request" server_name="/undock_plugin_action" server_timeout="10000" soft_stop="{soft_stop}" timeout_failed="{timeout_failed}" unknow_failed="{unknow_failed}"/>
+                                                    <Action ID="DOCK_PLUGIN" cam_detection_failed="{cam_detection_failed}" charging_failed="{charging_failed}" current_pose="{current_pose}" dock_pose="{dock_pose}" flashlight_failed="{flashlight_failed}" hard_stop="{hard_stop}" lidar_detection_failed="{lidar_detection_failed}" localization_failed="{localization_failed}" move_base_failed="{move_base_failed}" server_name="/dock_plugin_action" server_timeout="10000" soft_stop="{soft_stop}" timeout_failed="{timeout_failed}" unknow_failed="{unknow_failed}"/>
+                                                </Control>
+                                                <Action ID="DOCK_PLUGIN" cam_detection_failed="{cam_detection_failed}" charging_failed="{charging_failed}" current_pose="{current_pose}" dock_pose="{dock_pose}" flashlight_failed="{flashlight_failed}" hard_stop="{hard_stop}" lidar_detection_failed="{lidar_detection_failed}" localization_failed="{localization_failed}" move_base_failed="{move_base_failed}" name="Charging request" server_name="/charging_plugin_action" server_timeout="10000" soft_stop="{soft_stop}" timeout_failed="{timeout_failed}" unknow_failed="{unknow_failed}"/>
+                                            </Sequence>
+                                            <AlwaysSuccess/>
+                                        </IfThenElse>
+                                    </Fallback>
+                                </IfThenElse>
+                            </Fallback>
+                        </Fallback>
+                    </IfThenElse>
+                    <Fallback>
+                        <Fallback>
+                            <Condition ID="IsBlackboardTrue" key_blackboard="flashlight_failed" name="flashlight"/>
+                            <Condition ID="IsBlackboardTrue" key_blackboard="cam_detection_failed" name="camera"/>
+                            <Condition ID="IsBlackboardTrue" key_blackboard="lidar_detection_failed" name="lidar_detection"/>
+                        </Fallback>
+                        <Fallback>
+                            <Fallback>
+                                <Inverter>
+                                    <Condition ID="IsBlackboardTrue" key_blackboard="dockout" name="IsDockIn"/>
+                                </Inverter>
+                                <Inverter>
+                                    <Condition ID="IsBlackboardTrue" key_blackboard="soft_stop" name="IsSoftStop"/>
+                                </Inverter>
+                            </Fallback>
+                            <Action ID="DOCK_PLUGIN" cam_detection_failed="{cam_detection_failed}" charging_failed="{charging_failed}" current_pose="{current_pose}" dock_pose="{dock_pose}" flashlight_failed="{flashlight_failed}" hard_stop="{hard_stop}" lidar_detection_failed="{lidar_detection_failed}" localization_failed="{localization_failed}" move_base_failed="{move_base_failed}" name="Charging request" server_name="/undock_plugin_action" server_timeout="10000" soft_stop="{soft_stop}" timeout_failed="{timeout_failed}" unknow_failed="{unknow_failed}"/>
+                        </Fallback>
+                    </Fallback>
+                </Sequence>
+                <Fallback>
+                    <Condition ID="IsBlackboardTrue" key_blackboard="hard_stop" name="IsHardStop"/>
+                    <Condition ID="IsBlackboardTrue" key_blackboard="soft_stop" name="IsSoftStop"/>
+                </Fallback>
+                <AlwaysFailure/>
+            </Fallback>
+        </SequenceStar>
+    </BehaviorTree>
+</root>

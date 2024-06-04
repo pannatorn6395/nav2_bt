@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <AlwaysSuccess/>
+            <Action ID="RequestDockingState" current_pose="{current_pose}" dock_pose="{dock_pose}" dock_type="{dock_type}" server_timeout="10000" service_name="docking_state"/>
+            <Action ID="DOCK_PLUGIN" current_pose="{current_pose}" dock_pose="{dock_pose}" server_name="/dock_plugin_action"/>
+            <Fallback>
+                <Action ID="DOCK_PLUGIN" current_pose="{current_pose}" dock_pose="{dock_pose}" name="CHARGE_PLUGIN" server_name="/charge_plugin_action"/>
+                <Action ID="DOCK_PLUGIN" current_pose="{current_pose}" dock_pose="{dock_pose}" name="UNDOCK_PLUGIN" server_name="/undock_plugin_action"/>
+            </Fallback>
+        </Sequence>
+    </BehaviorTree>
+</root>

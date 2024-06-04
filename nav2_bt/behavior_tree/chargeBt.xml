@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<root main_tree_to_execute="BehaviorTree">
+    <!-- ////////// -->
+    <BehaviorTree ID="BehaviorTree">
+        <Sequence>
+            <AlwaysSuccess/>
+            <Repeat num_cycles="5">
+                <Action ID="RequestDockingState" current_pose="{current_pose}" dock_pose="{dock_pose}" dock_type="{dock_type}" server_timeout="10000" service_name="docking_state"/>
+            </Repeat>
+            <Action ID="DockAction" current_pose="{current_pose}" dock_pose="{dock_pose}" server_name="docking"/>
+        </Sequence>
+    </BehaviorTree>
+</root>
